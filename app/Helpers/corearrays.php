@@ -180,6 +180,18 @@ if (!function_exists('id_type')) {
     }
 }
 
+if (!function_exists('operation_type')) {
+    function operation_type($input = null) {
+        $output = [
+            OPERATION_INCREASE => __('Increased'),
+            OPERATION_DECREASE => __('Decreased'),
+            OPERATION_REPLACE => __('Replaced'),
+        ];
+
+        return is_null($input) ? $output : $output[$input];
+    }
+}
+
 if (!function_exists('exchange_type')) {
     function exchange_type($input = null) {
         $output = [

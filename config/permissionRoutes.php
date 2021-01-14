@@ -91,6 +91,12 @@ return [
                     'admin.stock-pairs.destroy',
                 ]
             ],
+            'bonus_management' => [
+                ROUTE_GROUP_CREATION_ACCESS => [
+                    'admin.bonuses.create',
+                    'admin.bonuses.store',
+                ]
+            ],
             'review_withdrawals' => [
                 ROUTE_GROUP_READER_ACCESS => [
                     'admin.review-withdrawals.index',
@@ -99,6 +105,12 @@ return [
                 ROUTE_GROUP_MODIFIER_ACCESS => [
                     'admin.review-withdrawals.approve',
                     'admin.review-withdrawals.decline',
+                ],
+            ],
+            'modify_wallets' => [
+                ROUTE_GROUP_MODIFIER_ACCESS => [
+                    'admin.users.wallets.edit',
+                    'admin.users.wallets.update',
                 ],
             ],
             'transaction_reports' => [

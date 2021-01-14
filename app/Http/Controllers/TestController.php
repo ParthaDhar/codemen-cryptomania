@@ -17,6 +17,6 @@ class TestController extends Controller
      */
     public function test()
     {
-        $this->dispatch(new StopLimitStockOrder(1,1.20000000));
+
     }
 }

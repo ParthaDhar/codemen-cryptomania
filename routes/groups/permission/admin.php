@@ -4,6 +4,9 @@ Route::group(['namespace' => 'User\Admin'], function () {
     Route::get('/dashboard', 'DashboardController')->name('dashboard');
 
     Route::get('users/{id}/wallets', 'UsersController@wallets')->name('admin.users.wallets');
+    Route::get('users/{id}/wallets/{walletId}', 'UsersController@editWalletBalance')->name('admin.users.wallets.edit')->where('walletId', '[0-9]+');
+
+    Route::post('users/{id}/wallets/{walletId}/update', 'UsersController@updateWalletBalance')->name('admin.users.wallets.update')->where('walletId', '[0-9]+');
 
     Route::put('coins/{id}/toggle-status', 'StockItemController@toggleActiveStatus')->name('admin.stock-items.toggle-status');
 

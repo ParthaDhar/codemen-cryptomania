@@ -1,3 +1,9 @@
+## Cryptomania - Kickstarter
+
+
+#### Introduction
+
+Cryptomania is built with laravel with required core functionalities for almost all projects. Visit the official website [Cryptomania](http://cryptomania.codemen.org)
 
 #### Technology used in Development Environment
 
@@ -50,8 +56,3 @@ The app may run on shared servers by tweaking codes but **we do not guarantee it
 * Audit Logging system
 * Error Logging system
 * Ready-made Login, signup, verification and reset password
-
-This is production code for vulnerability management ebtradex.com
-
-Support: aaccou52@gmail.com
-

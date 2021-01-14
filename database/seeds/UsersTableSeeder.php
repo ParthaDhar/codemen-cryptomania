@@ -19,9 +19,9 @@ class UsersTableSeeder extends Seeder
         $users = [
             [
                 'user_role_management_id' => USER_ROLE_SUPER_ADMIN,
-                'username' => 'NetAdmin',
-                'email' => 'myebalance@gmail.com',
-                'password' => Hash::make('R@Bby2019'),
+                'username' => 'superadmin',
+                'email' => 'superadmin@codemen.org',
+                'password' => Hash::make('superadmin'),
                 'is_email_verified' => EMAIL_VERIFICATION_STATUS_ACTIVE,
                 'is_accessible_under_maintenance' => UNDER_MAINTENANCE_ACCESS_ACTIVE,
                 'is_active' => ACTIVE_STATUS_ACTIVE,

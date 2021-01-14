@@ -117,7 +117,7 @@ return [
             ],
             'single-worker' => [
                 'connection' => 'redis',
-                'queue' => ['withdrawal', 'stop-limit'],
+                'queue' => ['withdrawal', 'stop-limit', 'bonus-coin'],
                 'balance' => 'simple',
                 'processes' => 1,
                 'tries' => 1,
@@ -141,7 +141,7 @@ return [
             ],
             'single-worker' => [
                 'connection' => 'redis',
-                'queue' => ['withdrawal', 'stop-limit'],
+                'queue' => ['withdrawal', 'stop-limit', 'bonus-coin'],
                 'balance' => 'simple',
                 'processes' => 1,
                 'tries' => 1,

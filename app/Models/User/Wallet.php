@@ -12,4 +12,9 @@ class Wallet extends Model
     public function stockItem(){
         return $this->belongsTo(StockItem::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

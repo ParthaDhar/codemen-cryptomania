@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\User\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\Admin\UpdateWalletBalanceRequest;
 use App\Http\Requests\User\UserRequest;
 use App\Http\Requests\User\UserStatusRequest;
 use App\Repositories\Core\Interfaces\UserRoleManagementInterface;
+use App\Repositories\User\Admin\Interfaces\TransactionInterface;
 use App\Repositories\User\Interfaces\NotificationInterface;
 use App\Repositories\User\Interfaces\UserInfoInterface;
 use App\Repositories\User\Interfaces\UserInterface;
+use App\Repositories\User\Trader\Interfaces\WalletInterface;
 use App\Services\Core\DataListService;
 use App\Services\User\UserService;
 use App\Services\User\Trader\WalletService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UsersController extends Controller
 {
@@ -72,7 +76,7 @@ class UsersController extends Controller
 
     public function store(UserRequest $request)
     {
-        $parameters = $request->only(['first_name','last_name','address','user_role_management_id','email','username','is_email_verified','is_financial_active','is_active','is_accessible_under_maintenance']);
+        $parameters = $request->only(['first_name', 'last_name', 'address', 'user_role_management_id', 'email', 'username', 'is_email_verified', 'is_financial_active', 'is_active', 'is_accessible_under_maintenance']);
 
         if ($user = app(UserService::class)->generate($parameters)) {
             return redirect()->route('users.show', $user->id)->with(SERVICE_RESPONSE_SUCCESS, __("User has been created successfully."));
@@ -158,10 +162,86 @@ class UsersController extends Controller
         return redirect()->route('users.edit.status', $id)->with(SERVICE_RESPONSE_SUCCESS, __('User status has been updated successfully.'));
     }
 
-    public function wallets($id) {
+    public function wallets($id)
+    {
         $data['list'] = app(WalletService::class)->getWallets($id);
         $data['title'] = __('Wallets');
 
         return view('backend.users.wallets.index', $data);
+    }
+
+    public function editWalletBalance($id, $walletId)
+    {
+        $data['wallet'] = app(WalletInterface::class)->getFirstByConditions(['id' => $walletId, 'user_id' => $id]);
+        $data['title'] = __('Modify Wallet Balance');
+
+        return view('backend.users.wallets.edit', $data);
+    }
+
+    public function updateWalletBalance(UpdateWalletBalanceRequest $request, $id, $walletId)
+    {
+        $attributes = ['primary_balance' => DB::raw('primary_balance + ' . $request->amount)];
+
+        try {
+            DB::beginTransaction();
+
+            $walletRepository = app(WalletInterface::class);
+            // get the wallet
+            $wallet = $walletRepository->getFirstByConditions(['id' => $walletId, 'user_id' => $id], ['stockItem']);
+
+            if (empty($wallet)) {
+                throw new \Exception(__('No wallet is found.'));
+            }
+
+            if ( !$walletRepository->update($attributes, $walletId) ) {
+                throw new \Exception(__('Failed to update the wallet balance.'));
+            }
+
+            $date = now();
+            // compare the balance with given amount to identify if it's decreased or increased
+            $transactionParameters = [
+                [
+                    'user_id' => $wallet->user_id,
+                    'stock_item_id' => $wallet->stock_item_id,
+                    'model_name' => null,
+                    'model_id' => null,
+                    'transaction_type' => TRANSACTION_TYPE_DEBIT,
+                    'amount' => bcmul($request->amount, '-1'),
+                    'journal' => DECREASED_FROM_SYSTEM_ON_TRANSFER_BY_ADMIN,
+                    'updated_at' => $date,
+                    'created_at' => $date,
+                ],
+                [
+                    'user_id' => $wallet->user_id,
+                    'stock_item_id' => $wallet->stock_item_id,
+                    'model_name' => get_class($wallet),
+                    'model_id' => $wallet->id,
+                    'transaction_type' => TRANSACTION_TYPE_CREDIT,
+                    'amount' => bcmul($request->amount, '1'),
+                    'journal' => INCREASED_TO_USER_WALLET_ON_TRANSFER_BY_ADMIN,
+                    'updated_at' => $date,
+                    'created_at' => $date,
+                ]
+            ];
+
+            $notificationParameter = [
+                'user_id' => $wallet->user_id,
+                'data' => __("Your :currency wallet has been increased with :amount :currency by system.", [
+                    'amount' => $request->amount,
+                    'currency' => $wallet->stockItem->item
+                ]),
+            ];
+
+            app(TransactionInterface::class)->insert($transactionParameters);
+            app(NotificationInterface::class)->create($notificationParameter);
+
+            DB::commit();
+
+            return redirect()->back()->with(SERVICE_RESPONSE_SUCCESS, __('The wallet balance has been updated successfully.'));
+        } catch (\Exception $exception) {
+            DB::rollBack();
+
+            return redirect()->back()->with(SERVICE_RESPONSE_ERROR, __('Failed to update the wallet balance.'));
+        }
     }
 }

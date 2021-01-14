@@ -43,6 +43,12 @@
                                                             <a href="{{ route('reports.admin.wallets.withdrawals', ['id' => $wallet->id]) }}"><i class="fa fa-magic"></i> {{ __('Withdrawal History') }}</a>
                                                         </li>
                                                     @endif
+
+                                                    @if( has_permission('admin.users.wallets.edit'))
+                                                        <li>
+                                                            <a href="{{ route('admin.users.wallets.edit', ['id' => $wallet->user_id, 'walletId' => $wallet->id]) }}"><i class="fa fa-magic"></i> {{ __('Give Amount') }}</a>
+                                                        </li>
+                                                    @endif
                                                 </ul>
                                             </div>
                                         @endif
